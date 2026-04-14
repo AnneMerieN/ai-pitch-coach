@@ -1,12 +1,8 @@
 {
   "functions": {
     "api/*.ts": {
-      "maxDuration": 30
-    }
-  },
-  "api": {
-    "bodyParser": {
-      "sizeLimit": "10mb"
+      "maxDuration": 30,
+      "memory": 1024
     }
   }
 }
