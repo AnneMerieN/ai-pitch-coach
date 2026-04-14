@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(start http://localhost:3000)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(findstr LISTENING)",
+      "Bash(taskkill /PID 27952 /F)",
+      "Bash(cmd /c \"taskkill /PID 27952 /F\")",
+      "Bash(start http://localhost:3002)",
+      "Bash(cmd /c \"netstat -ano | findstr :300\")",
+      "Bash(cmd /c \"node -e \\\\\"const p = require\\('./node_modules/@google/genai/package.json'\\); console.log\\(p.version\\)\\\\\"\")",
+      "Bash(cmd /c \"for /f \\\\\"tokens=5\\\\\" %a in \\('netstat -ano ^| findstr :3000'\\) do taskkill /pid %a /f\")",
+      "Bash(start http://localhost:3001)",
+      "Bash(cmd /c \"for /f \\\\\"tokens=5\\\\\" %a in \\('netstat -ano ^| findstr :3001'\\) do taskkill /pid %a /f\")",
+      "Bash(cmd /c \"for /f \\\\\"tokens=5\\\\\" %a in \\('netstat -ano ^| findstr :3002'\\) do taskkill /pid %a /f\")",
+      "Bash(start http://localhost:3003)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(npm install:*)",
+      "Bash(start http://localhost:3004)",
+      "Bash(start cmd:*)",
+      "Bash(npx vite:*)",
+      "Bash(gh repo:*)",
+      "Bash(where gh:*)",
+      "Bash(powershell -Command \"Remove-Item src/components/ChatHistory.tsx, src/components/FeedbackDisplay.tsx, src/components/Icons.tsx, src/components/LoadingSpinner.tsx, src/components/PitchInput.tsx -ErrorAction SilentlyContinue; ls src/components/\")",
+      "Bash(powershell -Command \"Remove-Item src/components/ConversationSidebar.tsx, src/components/JudgeRubricPanel.tsx -ErrorAction SilentlyContinue\")"
+    ]
+  }
+}

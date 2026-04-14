@@ -20,7 +20,7 @@ const AudioRecorder: React.FC<Props> = ({ onSend, isLoading }) => {
 
   // Refs so callbacks always see current values
   const finalTranscriptRef = useRef("");
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -134,14 +134,14 @@ const AudioRecorder: React.FC<Props> = ({ onSend, isLoading }) => {
       audioCtx.createMediaStreamSource(stream).connect(analyser);
 
       // Speech recognition
-      const recognition: SpeechRecognition = new SR();
+      const recognition: any = new SR();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = "en-US";
       recognitionRef.current = recognition;
       isRecordingRef.current = true;
 
-      recognition.onresult = (e: SpeechRecognitionEvent) => {
+      recognition.onresult = (e: any) => {
         let newFinal = "";
         let interim = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -159,7 +159,7 @@ const AudioRecorder: React.FC<Props> = ({ onSend, isLoading }) => {
         setInterimTranscript(interim);
       };
 
-      recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+      recognition.onerror = (e: any) => {
         if (e.error !== "no-speech" && e.error !== "aborted") {
           setError(`Microphone error: ${e.error}. Try refreshing and allowing mic access.`);
           stopRecording();

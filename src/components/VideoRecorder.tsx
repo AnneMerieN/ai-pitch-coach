@@ -113,7 +113,7 @@ const VideoRecorder: React.FC<Props> = ({ onSend, isLoading, pitchLength, onReco
   const streamRef = useRef<MediaStream | null>(null);
   const faceLandmarkerRef = useRef<FaceLandmarker | null>(null);
   const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   const animFrameRef = useRef<number>(0);
   const timerRef = useRef<number>(0);
   const statsRef = useRef<StatsAcc>({ eyeContact: 0, goodPosture: 0, smiling: 0, stable: 0, total: 0 });
@@ -308,14 +308,14 @@ const VideoRecorder: React.FC<Props> = ({ onSend, isLoading, pitchLength, onReco
       // ── Speech recognition ──────────────────────────────────────────────────
       const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SR) {
-        const recognition: SpeechRecognition = new SR();
+        const recognition: any = new SR();
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = "en-US";
         recognitionRef.current = recognition;
         isRecordingRef.current = true;
 
-        recognition.onresult = (e: SpeechRecognitionEvent) => {
+        recognition.onresult = (e: any) => {
           let newFinal = "";
           let interim = "";
           for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -333,7 +333,7 @@ const VideoRecorder: React.FC<Props> = ({ onSend, isLoading, pitchLength, onReco
           setInterimTranscript(interim);
         };
 
-        recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+        recognition.onerror = (e: any) => {
           if (e.error !== "no-speech" && e.error !== "aborted") {
             setError(`Microphone error: ${e.error}. Check that mic permissions are allowed.`);
           }
