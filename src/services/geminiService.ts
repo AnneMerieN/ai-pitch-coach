@@ -2,10 +2,42 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { AIResponse, ConversationTurn, PitchLength } from "../types";
 import type { ProcessedFile } from "../utils/fileProcessor";
 
-const client = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY as string,
-  dangerouslyAllowBrowser: true,
-});
+// In development: call Anthropic directly (key from .env.local).
+// In production (Vercel): call our secure serverless proxy — key never leaves the server.
+const IS_PROD = import.meta.env.PROD;
+
+const devClient = IS_PROD
+  ? null
+  : new Anthropic({
+      apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY as string,
+      dangerouslyAllowBrowser: true,
+    });
+
+// ── Proxy helpers (production only) ──────────────────────────────────────────
+
+async function proxyChat(body: object): Promise<Anthropic.Message> {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error ?? `Proxy error ${res.status}`);
+  }
+  return res.json();
+}
+
+async function proxyTitle(firstUserMessage: string, firstAIResponse: string): Promise<string> {
+  const res = await fetch("/api/generate-title", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firstUserMessage, firstAIResponse }),
+  });
+  if (!res.ok) return firstUserMessage.slice(0, 40);
+  const data = await res.json();
+  return data.title ?? firstUserMessage.slice(0, 40);
+}
 
 // ── System prompts ────────────────────────────────────────────────────────────
 
@@ -270,12 +302,16 @@ export const getAIResponse = async (
     { role: "user", content: userContent },
   ];
 
-  const response = await client.messages.create({
+  const requestBody = {
     model: "claude-haiku-4-5",
     max_tokens: 4096,
     system: buildSystemPrompt(pitchLength, isPitchMode ?? false),
     messages,
-  });
+  };
+
+  const response = IS_PROD
+    ? await proxyChat(requestBody)
+    : await devClient!.messages.create(requestBody);
 
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") {
@@ -291,7 +327,9 @@ export const generateSessionTitle = async (
   firstUserMessage: string,
   firstAIResponse: string
 ): Promise<string> => {
-  const response = await client.messages.create({
+  if (IS_PROD) return proxyTitle(firstUserMessage, firstAIResponse);
+
+  const response = await devClient!.messages.create({
     model: "claude-haiku-4-5",
     max_tokens: 16,
     system: "Generate a concise 3-5 word title for this conversation. Return only the title, no quotes, no punctuation at the end.",
