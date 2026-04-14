@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth, googleProvider } from "./services/firebase";
 import { loadSessions, renameSession, pinSession, deleteSession } from "./services/chatStorage";
@@ -35,11 +35,6 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    // Handle redirect result after Google sign-in (production only)
-    if (import.meta.env.PROD) {
-      getRedirectResult(auth).catch((err) => console.error("Redirect result error:", err));
-    }
-
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       setAuthLoading(false);
@@ -62,11 +57,7 @@ const App: React.FC = () => {
 
   const handleSignIn = async () => {
     try {
-      if (import.meta.env.PROD) {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        await signInWithPopup(auth, googleProvider);
-      }
+      await signInWithPopup(auth, googleProvider);
     } catch (err) {
       console.error("Sign-in error:", err);
     }
