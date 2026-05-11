@@ -5,6 +5,7 @@ import type { Message, ConversationTurn, PitchLength, Feedback, GeneralScores, S
 import type { ProcessedFile } from "../utils/fileProcessor";
 import { getAIResponse, generateSessionTitle } from "../services/geminiService";
 import { createSession, saveSession, renameSession } from "../services/chatStorage";
+import { trackEvent } from "../services/firebase";
 import type { ChatSession } from "../services/chatStorage";
 import FileUploadZone from "./FileUploadZone";
 import AudioRecorder from "./AudioRecorder";
@@ -389,6 +390,7 @@ const MainArea: React.FC<MainAreaProps> = ({
 
   const handleVideoSend = async (data: VideoReviewData) => {
     if (isLoading) return;
+    trackEvent("video_pitch_sent", { pitch_length: pitchLength });
 
     const userId = `user-${Date.now()}`;
     const assistantId = `assistant-${Date.now()}`;
@@ -467,6 +469,12 @@ const MainArea: React.FC<MainAreaProps> = ({
     const text = overrideText ?? textValue.trim();
     const fileToSend = overrideText ? null : attachedFile;
     if ((!text && !fileToSend) || isLoading) return;
+
+    trackEvent("message_sent", {
+      mode: fileToSend ? "file" : overrideText ? "audio" : "text",
+      is_pitch_mode: isPitchMode,
+      pitch_length: pitchLength,
+    });
 
     const userId = `user-${Date.now()}`;
     const assistantId = `assistant-${Date.now()}`;

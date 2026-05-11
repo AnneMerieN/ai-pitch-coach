@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
-import { auth, googleProvider } from "./services/firebase";
+import { auth, googleProvider, trackEvent } from "./services/firebase";
 import { loadSessions, renameSession, pinSession, deleteSession } from "./services/chatStorage";
 import type { ChatSession } from "./services/chatStorage";
 import Sidebar from "./components/Sidebar";
@@ -58,6 +58,7 @@ const App: React.FC = () => {
   const handleSignIn = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      trackEvent("login", { method: "google" });
     } catch (err) {
       console.error("Sign-in error:", err);
     }
